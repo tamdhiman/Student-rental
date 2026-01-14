@@ -11,6 +11,7 @@
 //package java.awt;import java.awt.peer.CanvasPeer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -35,8 +36,14 @@ public class Start {
          System.out.println("2. Login into account");
          System.out.println("3. Exit this simulation");
 
-         int userChoice = sc.nextInt();
-         sc.nextLine();
+         String input = sc.next();
+         int userChoice;
+         try {
+            userChoice = Integer.parseInt(input);
+         } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number (1 - 3) ");
+            continue;
+         }
 
          /* Shorthand operation */
          switch (userChoice) {
@@ -71,7 +78,7 @@ public class Start {
          System.out.println("1. Student");
          System.out.println("2. Homeowner");
          System.out.println("3. Admin");
-         System.out.println("4. Exit this simulation");
+         System.out.println("4. Return to previous page");
          
          String input = sc.next();
          int userChoice;
@@ -141,7 +148,7 @@ public class Start {
         currentUser = tempUser;
         System.out.println("Login successful!");
         System.out.println("Welcome " + tempUser.getName());
-        runUserPage(tempUser);
+        runUserPage();
         // Add logic to open the corresponding functions?
         break;
       }
@@ -203,21 +210,206 @@ public class Start {
       if (!user.verifySecurityAnswer(question, answer)) {
          return false;
       }
-
-      String newPassword = getPasswordInput("Enter a new password:"); //the new password should not be equal to the last/current password
+      String newPassword;
+      do {
+         newPassword = getPasswordInput("Enter a new password:");
+         if (user.authenticateUser(newPassword)) {
+               System.out.println("New password must be different from the old one.");
+         }
+      } while (user.authenticateUser(newPassword));
       user.setPassword(newPassword);
+      System.out.println("Password successfully reset!");
       return true;
    }
 
    /*User Pages/Applications */
 
-   //Should I pass the user in argument or use one currentUser. What is better practise and why?
-   public void runUserPage(User user){
-      //Get the type of User and run corresponding method
+   public void runUserPage(){
+      if (currentUser instanceof Student student) {
+        studentPage(student);
+      } else if (currentUser instanceof Homeowner homeowner) {
+         homeownerPage(homeowner);
+      } else if (currentUser instanceof Administration admin) {
+         adminPage(admin);
+      }
+   }
+   // Should I add these pages here? Or should I do method overloading in all these cases so that each has different functionality but the same function name?
+   public void studentPage(Student student){
+
+   }
+   public void homeownerPage(Homeowner homeowner){
+      
+      while (true) {
+         System.out.println("\n--- Homeowner Main Page ---");
+         System.out.println("What would you like to do?");
+         System.out.println("1. Create/View your Rooms");
+         System.out.println("2. Create/View a Rental Listing");
+         System.out.println("3. View a Rental Request ");
+         System.out.print("4: Return to previous page ");
+
+         String input = sc.next();
+         int userChoice;
+         try {
+            userChoice = Integer.parseInt(input);
+         } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number (1 - 4) ");
+            continue;
+         }
+
+         /* Shorthand operation */
+         switch (userChoice) {
+               case 1 -> homeownerRoomPage(homeowner);
+               case 2 -> rentalListingPage(homeowner);
+               case 3 -> rentalRequestsPage(homeowner);
+               case 4 -> {
+                        System.out.println("Returning to main menu...");
+                        return;}
+               default -> System.out.println("Please choose from the preseneted options");
+         }
+      }
+      
    }
 
-   public void homeownerPage(User user){
-      // Allow them to 
+   public void adminPage(Administration admin){
+
    }
+
+   /* HOMEOWNER PAGE */
+
+   public void homeownerRoomPage(Homeowner homeowner) {
+
+    while (true) {
+        System.out.println("\n--- Room Management ---");
+        System.out.println("1. Add a new Room");
+        System.out.println("2. View your Rooms");
+        System.out.println("3. Return to Homeowner Page");
+        System.out.print("Enter your choice: ");
+        
+        String input = sc.next();
+        int userChoice;
+        try {
+         userChoice = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number (1 - 4) ");
+            continue;
+        }
+
+        switch (userChoice) {
+            case 1 -> {
+               sc.nextLine(); // Consume leftover newline
+               String roomName;
+               do {
+                     System.out.print("Enter room name (cannot be empty): ");
+                     roomName = sc.nextLine().trim();
+               } while (roomName.isEmpty());
+
+               String roomDescription;
+               do {
+                     System.out.print("Enter room description (cannot be empty): ");
+                     roomDescription = sc.nextLine().trim();
+               } while (roomDescription.isEmpty());
+
+               // Add room to homeowner and RoomRepo
+               homeowner.addRoom(roomName, roomDescription);
+               System.out.println("Room added successfully!");
+            }
+
+            case 2 -> {
+               List<Room> rooms = homeowner.getRooms();
+               if (rooms.isEmpty()) {
+                     System.out.println("You have no rooms yet.");
+               } else {
+                     System.out.println("\n--- Your Rooms ---");
+                     for (int i = 0; i < rooms.size(); i++) {
+                        Room r = rooms.get(i);
+                        System.out.println((i + 1) + ". " + "Name: " + r.getRoomName() 
+                                          + " | Description: " + r.getDescription() 
+                                          + " | Room ID: " + r.getRoomId());
+                     }
+               }
+            }
+            case 3 -> {
+                System.out.println("Returning to Homeowner Dashboard...");
+                return;
+            }
+            default -> System.out.println("Invalid option.");
+        }
+    }
+}
+
+// Work on this
+public void rentalListingPage(Homeowner homeowner) {
+    while (true) {
+        System.out.println("\n--- Rental Listing Management ---");
+        System.out.println("1. Create a new Rental Listing");
+        System.out.println("2. View your Rental Listings");
+        System.out.println("3. Return to Homeowner Dashboard");
+        System.out.print("Enter your choice: ");
+
+        String input = sc.next();
+        int choice;
+        try {
+            choice = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+            continue;
+        }
+
+        switch (choice) {
+            case 1 -> {
+                homeowner.addListing();
+                System.out.println("Rental Listing added successfully!");
+            }
+            case 2 -> {
+                List<RentalListing> listings = homeowner.getListings();
+                if (listings.isEmpty()) {
+                    System.out.println("You have no rental listings yet.");
+                } else {
+                    System.out.println("--- Your Rental Listings ---");
+                    for (int i = 0; i < listings.size(); i++) {
+                        System.out.println((i + 1) + ". " + listings.get(i));
+                    }
+                }
+            }
+            case 3 -> {
+                System.out.println("Returning to Homeowner Dashboard...");
+                return;
+            }
+            default -> System.out.println("Invalid option.");
+        }
+    }
+}
+
+// Work on this
+
+public void rentalRequestsPage(Homeowner homeowner) {
+    List<RentalRequest> requests = homeowner.getRentalRequests();
+
+    if (requests.isEmpty()) {
+        System.out.println("No rental requests at the moment.");
+        return;
+    }
+
+    System.out.println("\n--- Rental Requests ---");
+    for (int i = 0; i < requests.size(); i++) {
+        System.out.println((i + 1) + ". " + requests.get(i));
+    }
+
+    System.out.println("Enter the number of a request to respond or 0 to return: ");
+    int choice = -1;
+    try {
+        choice = Integer.parseInt(sc.next());
+    } catch (NumberFormatException ignored) { }
+
+    if (choice > 0 && choice <= requests.size()) {
+        RentalRequest selected = requests.get(choice - 1);
+        System.out.println("Responding to: " + selected);
+        // Add logic to approve/reject
+    } else {
+        System.out.println("Returning to Homeowner Dashboard...");
+    }
+}
+
+
 
 }

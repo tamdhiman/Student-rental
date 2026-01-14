@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -9,6 +10,7 @@ public abstract class User implements Serializable {
     /* USER ATTRIBUTES */
 
     private static final long serialVersionUID = 1L;
+    private static final Random randomGenerator = new Random();
     protected final int userId;
     protected String name;
     protected String email;
@@ -52,12 +54,11 @@ public abstract class User implements Serializable {
    }
 
     public String getRandomSecurityQuestion() {
-        int index = new Random().nextInt(securityAnswers.size());
-        return securityAnswers.keySet().toArray(new String[0])[index];
+        List<String> questions = List.copyOf(securityAnswers.keySet());
+        return questions.get(randomGenerator.nextInt(questions.size()));
     }
    public boolean verifySecurityAnswer(String question, String answer) {
-        String correctAnswer = securityAnswers.get(question);
-        return correctAnswer != null && correctAnswer.equalsIgnoreCase(answer);
+        return securityAnswers.get(question).equalsIgnoreCase(answer);
     }
 
     public void resetPassword(String password){ //Is this helpful/protects user?
