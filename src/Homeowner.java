@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 
 public class Homeowner extends User {
     private final List<Room> rentRooms = new ArrayList<>();
@@ -19,10 +20,15 @@ public class Homeowner extends User {
         RoomRepo.addRoom(newRoom);
     }
 
-    public void addListing() {
-        RentalListing newListing = new RentalListing();
-        rentListings.add(newListing);
-    }
+    public void addListing(List<Room> rooms, String city, String address, List<DateRange> availableDates, double price) { 
+    int listingId = RentalListingRepo.generateListingId();
+    RentalListing newListing = new RentalListing(listingId, rooms, city, address, availableDates, price, this);
+
+    rentListings.add(newListing);              // local list
+    RentalListingRepo.addListing(newListing);  // persist globally
+}
+
+
 
     public List<Room> getRooms() {
         return List.copyOf(rentRooms);

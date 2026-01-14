@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class Start {
    // Whenever I stop running the terminal, and come back I lose my progress. Help me update UserRepo so that the valus stay even after
@@ -338,7 +340,7 @@ public class Start {
 }
 
 // Work on this
-public void rentalListingPage(Homeowner homeowner) {
+private void rentalListingPage(Homeowner homeowner) {
     while (true) {
         System.out.println("\n--- Rental Listing Management ---");
         System.out.println("1. Create a new Rental Listing");
@@ -356,10 +358,7 @@ public void rentalListingPage(Homeowner homeowner) {
         }
 
         switch (choice) {
-            case 1 -> {
-                homeowner.addListing();
-                System.out.println("Rental Listing added successfully!");
-            }
+            case 1 -> addListingPage(homeowner);
             case 2 -> {
                 List<RentalListing> listings = homeowner.getListings();
                 if (listings.isEmpty()) {
@@ -379,10 +378,51 @@ public void rentalListingPage(Homeowner homeowner) {
         }
     }
 }
+private void addListingPage(Homeowner homeowner){
+
+   if (homeowner.getRooms().isEmpty()) {
+      System.out.println("You have no rooms to create a listing. Add rooms first!");
+      return;
+   }
+
+   sc.nextLine(); 
+
+   System.out.print("Enter city: ");
+   String city = sc.nextLine().trim();
+   System.out.print("Enter address: ");
+   String address = sc.nextLine().trim();
+
+   double price;
+   while (true) {
+      System.out.print("Enter price per night: ");
+      try {
+         price = Double.parseDouble(sc.nextLine());
+         if (price < 0) throw new NumberFormatException();
+         break;
+      } catch (NumberFormatException e) {
+         System.out.println("Invalid price. Enter a positive number.");
+      }
+   }
+
+   List<Room> roomsToList = new ArrayList<>(homeowner.getRooms());
+
+   // Available Dates , I want to add multiple ranges of available dates
+   List<DateRange> availableDates = new ArrayList<>();
+   getAvailableDates(availableDates); //I want to take the dates range start and end from user
+
+   int listingId = RentalListingRepo.generateListingId();
+   RentalListing listing = new RentalListing(listingId, roomsToList, city, address, availableDates, price, homeowner);
+
+   homeowner.addListing(roomsToList, city, address, availableDates, price);
+   RentalListingRepo.addListing(listing);       
+
+   System.out.println("Rental Listing added successfully!");
+}
 
 // Work on this
 
 public void rentalRequestsPage(Homeowner homeowner) {
+
     List<RentalRequest> requests = homeowner.getRentalRequests();
 
     if (requests.isEmpty()) {
@@ -390,26 +430,111 @@ public void rentalRequestsPage(Homeowner homeowner) {
         return;
     }
 
-    System.out.println("\n--- Rental Requests ---");
-    for (int i = 0; i < requests.size(); i++) {
-        System.out.println((i + 1) + ". " + requests.get(i));
-    }
+    while (true) {
+        System.out.println("\n--- Rental Requests ---");
 
-    System.out.println("Enter the number of a request to respond or 0 to return: ");
-    int choice = -1;
-    try {
-        choice = Integer.parseInt(sc.next());
-    } catch (NumberFormatException ignored) { }
+        for (int i = 0; i < requests.size(); i++) {
+            System.out.println((i + 1) + ". " + requests.get(i));
+        }
 
-    if (choice > 0 && choice <= requests.size()) {
+        System.out.print("Enter request number to respond or 0 to return: ");
+        String input = sc.next();
+
+        int choice;
+        try {
+            choice = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input.");
+            continue;
+        }
+
+        if (choice == 0) {
+            System.out.println("Returning to Homeowner Dashboard...");
+            return;
+        }
+
+        if (choice < 1 || choice > requests.size()) {
+            System.out.println("Invalid choice.");
+            continue;
+        }
+
         RentalRequest selected = requests.get(choice - 1);
-        System.out.println("Responding to: " + selected);
-        // Add logic to approve/reject
-    } else {
-        System.out.println("Returning to Homeowner Dashboard...");
+
+        if (selected.getCurrentStatus() != RequestStatus.PENDING) {
+            System.out.println("This request has already been processed.");
+            continue;
+        }
+
+        System.out.println("1. Accept");
+        System.out.println("2. Reject");
+        System.out.print("Choose an option: ");
+        String decision = sc.next();
+
+        switch (decision) {
+            case "1" -> {
+                selected.updateHistory(RequestStatus.ACCEPTED);
+                System.out.println("Request accepted.");
+            }
+            case "2" -> {
+                selected.updateHistory(RequestStatus.REJECTED);
+                System.out.println("Request rejected.");
+            }
+            default -> System.out.println("Invalid option.");
+        }
     }
 }
 
 
+public void getAvailableDates(List<DateRange> availableDates) {
+    sc.nextLine(); // consume newline
+
+    while (true) {
+        System.out.println("Enter start date (yyyy-mm-dd) or 'done' to finish:");
+        String startInput = sc.nextLine().trim();
+        if (startInput.equalsIgnoreCase("done")) break;
+
+        System.out.println("Enter end date (yyyy-mm-dd):");
+        String endInput = sc.nextLine().trim();
+
+        try {
+            String[] startParts = startInput.split("-");
+            String[] endParts = endInput.split("-");
+
+            Date startDate = new Date(
+                Integer.parseInt(startParts[0]) - 1900,
+                Integer.parseInt(startParts[1]) - 1,
+                Integer.parseInt(startParts[2])
+            );
+            Date endDate = new Date(
+                Integer.parseInt(endParts[0]) - 1900,
+                Integer.parseInt(endParts[1]) - 1,
+                Integer.parseInt(endParts[2])
+            );
+
+            if (startDate.before(new Date())) {
+                System.out.println("Start date cannot be before today!");
+                continue;
+            }
+
+            // Optional: check for overlaps with existing ranges
+            boolean overlaps = false;
+            for (DateRange dr : availableDates) {
+                if (!(endDate.before(dr.getStart()) || startDate.after(dr.getEnd()))) {
+                    overlaps = true;
+                    break;
+                }
+            }
+            if (overlaps) {
+                System.out.println("This range overlaps with an existing range. Try again.");
+                continue;
+            }
+
+            availableDates.add(new DateRange(startDate, endDate));
+            System.out.println("Date range added!");
+        } catch (Exception e) {
+            System.out.println("Invalid date format. Use yyyy-mm-dd.");
+        }
+    }
+}
 
 }

@@ -6,8 +6,8 @@ public class Room implements Serializable {
    private int roomId;
    private String roomName;
    private String description;
-    private int ownerId; // Homeowner who owns this room
-    private List<RentalBooking> rentalHistory; 
+   private int ownerId; // Homeowner who owns this room
+   private List<RentalBooking> rentalHistory; 
 
 
    public Room(int roomId, String roomName, String description, int ownerId){
