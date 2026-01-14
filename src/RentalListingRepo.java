@@ -28,16 +28,16 @@ public class RentalListingRepo {
         return Map.copyOf(listingDatabase);
     }
 
-    // Fix this, maybe just use id instead of Object
-    public static Map<Integer, RentalListing> getListingsByHomeowner(Homeowner homeowner) {
-        Map<Integer, RentalListing> result = new HashMap<>();
-        for (RentalListing listing : listingDatabase.values()) {
-            if (listing.getHomeowner().getUserId() == homeowner.getUserId()) { //The method getHomeowner() is undefined for the type RentalListingJava(
-                result.put(listing.getListingId(), listing);
-            }
+    
+   public static Map<Integer, RentalListing> getListingsByHomeowner(Homeowner homeowner) {
+    Map<Integer, RentalListing> result = new HashMap<>();
+    for (RentalListing listing : listingDatabase.values()) {
+        if (listing.getHomeowner().getUserId() == homeowner.getUserId()) {
+            result.put(listing.getListingId(), listing);
         }
-        return result;
     }
+    return result;
+   }
 
     private static void saveData() {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileName))) {

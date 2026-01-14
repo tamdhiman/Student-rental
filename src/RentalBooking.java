@@ -1,2 +1,4 @@
-public class RentalBooking {
+import java.io.Serializable;
+
+public class RentalBooking implements Serializable {
 }

@@ -235,10 +235,6 @@ public class Start {
          adminPage(admin);
       }
    }
-   // Should I add these pages here? Or should I do method overloading in all these cases so that each has different functionality but the same function name?
-   public void studentPage(Student student){
-
-   }
    public void homeownerPage(Homeowner homeowner){
       
       while (true) {
@@ -317,7 +313,8 @@ public class Start {
             }
 
             case 2 -> {
-               List<Room> rooms = homeowner.getRooms();
+               Map<Integer, Room> roomMap = RoomRepo.getRoomsByHomeowner(homeowner);
+               List<Room> rooms = new ArrayList<>(roomMap.values());
                if (rooms.isEmpty()) {
                      System.out.println("You have no rooms yet.");
                } else {
@@ -360,27 +357,28 @@ private void rentalListingPage(Homeowner homeowner) {
         switch (choice) {
             case 1 -> addListingPage(homeowner);
             case 2 -> {
-                List<RentalListing> listings = homeowner.getListings();
-                if (listings.isEmpty()) {
-                    System.out.println("You have no rental listings yet.");
-                } else {
-                    System.out.println("--- Your Rental Listings ---");
-                    for (int i = 0; i < listings.size(); i++) {
-                        System.out.println((i + 1) + ". " + listings.get(i));
-                    }
-                }
+               List<RentalListing> listings = new ArrayList<>(RentalListingRepo.getListingsByHomeowner(homeowner).values());
+               if (listings.isEmpty()) {
+                  System.out.println("You have no rental listings yet.");
+               } else {
+                  System.out.println("--- Your Rental Listings ---");
+                  for (int i = 0; i < listings.size(); i++) {
+                     System.out.println((i + 1) + ". " + listings.get(i));
+                  }
+               }
             }
             case 3 -> {
-                System.out.println("Returning to Homeowner Dashboard...");
-                return;
+               System.out.println("Returning to Homeowner Dashboard...");
+               return;
             }
             default -> System.out.println("Invalid option.");
         }
     }
 }
 private void addListingPage(Homeowner homeowner){
-
-   if (homeowner.getRooms().isEmpty()) {
+   List<Room> homeownerRooms =
+   new ArrayList<>(RoomRepo.getRoomsByHomeowner(homeowner).values());
+   if (homeownerRooms.isEmpty()) {
       System.out.println("You have no rooms to create a listing. Add rooms first!");
       return;
    }
@@ -403,17 +401,16 @@ private void addListingPage(Homeowner homeowner){
          System.out.println("Invalid price. Enter a positive number.");
       }
    }
+   
+   List<Room> roomsToList = new ArrayList<>(homeowner.getRooms()); // What is this used for, getRooms is problematic
 
-   List<Room> roomsToList = new ArrayList<>(homeowner.getRooms());
-
-   // Available Dates , I want to add multiple ranges of available dates
+  
    List<DateRange> availableDates = new ArrayList<>();
-   getAvailableDates(availableDates); //I want to take the dates range start and end from user
+   getAvailableDates(availableDates); 
 
    int listingId = RentalListingRepo.generateListingId();
    RentalListing listing = new RentalListing(listingId, roomsToList, city, address, availableDates, price, homeowner);
 
-   homeowner.addListing(roomsToList, city, address, availableDates, price);
    RentalListingRepo.addListing(listing);       
 
    System.out.println("Rental Listing added successfully!");
@@ -486,7 +483,7 @@ public void rentalRequestsPage(Homeowner homeowner) {
 
 
 public void getAvailableDates(List<DateRange> availableDates) {
-    sc.nextLine(); // consume newline
+   
 
     while (true) {
         System.out.println("Enter start date (yyyy-mm-dd) or 'done' to finish:");
@@ -536,5 +533,120 @@ public void getAvailableDates(List<DateRange> availableDates) {
         }
     }
 }
+public void studentPage(Student student){
+   while (true) {
+      System.out.println("""
+         1. Search Rental Listings
+         2. View My Rental Requests
+         3. View Rental History
+         4. Logout
+      """);
 
+      int choice = Integer.parseInt(sc.nextLine());
+
+      switch (choice) {
+         case 1 -> searchListingsPage(student);
+         case 2 -> viewStudentRequests(student);
+         case 3 -> viewRentalHistory(student);
+         case 4 -> { return; }
+      }
+   }
+}
+
+public void searchListingsPage(Student student){
+
+   List<RentalListing> listings =
+         new ArrayList<>(RentalListingRepo.getAllListings().values());
+
+   if (listings.isEmpty()) {
+      System.out.println("No rental listings available.");
+      return;
+   }
+
+   System.out.println("\n--- Available Rental Listings ---");
+   for (int i = 0; i < listings.size(); i++) {
+      System.out.println((i + 1) + ". " + listings.get(i));
+   }
+
+   System.out.println("Enter listing number to request or 0 to return:");
+   int choice;
+
+   try {
+      choice = Integer.parseInt(sc.nextLine());
+   } catch (NumberFormatException e) {
+      System.out.println("Invalid input.");
+      return;
+   }
+
+   if (choice == 0) return;
+
+   if (choice < 1 || choice > listings.size()) {
+      System.out.println("Invalid listing selection.");
+      return;
+   }
+
+   RentalListing selectedListing = listings.get(choice - 1);
+
+   // Create request
+   student.createRequest(selectedListing);
+
+   System.out.println("Rental request submitted successfully!");
+}
+
+public void viewStudentRequests(Student student) {
+
+    List<RentalRequest> requests =
+            RentalRequestRepo.getRequestsByStudent(student);
+
+    if (requests.isEmpty()) {
+        System.out.println("You have no rental requests.");
+        return;
+    }
+
+    System.out.println("\n--- Your Rental Requests ---");
+    for (int i = 0; i < requests.size(); i++) {
+        System.out.println((i + 1) + ". " + requests.get(i));
+    }
+
+    System.out.println("\nEnter request number to view history or 0 to return:");
+    int choice;
+
+    try {
+        choice = Integer.parseInt(sc.nextLine());
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid input.");
+        return;
+    }
+
+    if (choice == 0) return;
+
+    if (choice < 1 || choice > requests.size()) {
+        System.out.println("Invalid selection.");
+        return;
+    }
+
+    RentalRequest request = requests.get(choice - 1);
+
+    System.out.println("\n--- Request History ---");
+    for (RentalRequest.RequestHistory h : request.getRequestHistory()) {
+        System.out.println(
+                h.getDate() + " → " + h.getStatus()
+        );
+    }
+}
+
+public void viewRentalHistory(Student student) {
+
+    List<RentalBooking> history = student.getRentalHistory();
+
+    if (history.isEmpty()) {
+        System.out.println("No rental history yet.");
+        return;
+    }
+
+    System.out.println("\n--- Your Rental History ---");
+    for (int i = 0; i < history.size(); i++) {
+        System.out.println((i + 1) + ". " + history.get(i));
+    }
+}
 }

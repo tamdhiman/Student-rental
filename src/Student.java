@@ -4,31 +4,46 @@ import java.util.List;
 import java.util.Map;
 
 public class Student extends User {
-    private final List<RentalRequest> rental_requests = new ArrayList<>();
-    private final List<RentalBooking> rental_history = new ArrayList<>();
+    private final List<RentalRequest> rentalRequests = new ArrayList<>();
+    private final List<RentalBooking> rentalHistory = new ArrayList<>();
 
-    public Student(int userId, String name, String email, String contact_number, String password, Map<String, String> security_answers) {
-        super(userId, name, email, contact_number, password, security_answers);
+    public Student(int userId, String name, String email, String contactNumber, String password, Map<String, String> securityAnswers) {
+        super(userId, name, email, contactNumber, password, securityAnswers);
     }
 
 
-    public void create_request(int room_id, Date start_date, Date end_date) throws IllegalArgumentException{
-        // Add more conditionals
-        if(start_date.after(end_date)){
-            throw new IllegalArgumentException("Start date cannot be after end date");
-        }
-        rental_requests.add(new RentalRequest(this.userId, room_id, start_date, end_date));
+    public void createRequest(RentalListing listing) {
+    if (listing == null) {
+        throw new IllegalArgumentException("Listing cannot be null");
     }
+
+    int requestId = RentalRequestRepo.generateRequestId();
+
+    RentalRequest request = new RentalRequest(
+        requestId,
+        this,
+        listing,
+        listing.getHomeowner()
+    );
+
+    rentalRequests.add(request);
+
+    // Add to homeowner as well
+    listing.getHomeowner().addRentalRequest(request);
+
+    // Persist globally
+    RentalRequestRepo.addRequest(request);
+}
 
     /* UPDATE HISTORY */
-    public void add_rental_history(RentalBooking booking) {
-        rental_history.add(booking);
+    public void addRentalHistory(RentalBooking booking) {
+        rentalHistory.add(booking);
     }
     public List<RentalRequest> getRentalRequests() {
-        return List.copyOf(rental_requests);
+        return List.copyOf(rentalRequests);
     }
 
     public List<RentalBooking> getRentalHistory() {
-        return List.copyOf(rental_history);
+        return List.copyOf(rentalHistory);
     }
 }

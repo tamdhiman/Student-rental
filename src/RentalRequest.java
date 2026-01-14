@@ -1,9 +1,10 @@
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class RentalRequest {
+public class RentalRequest implements Serializable{
 
     private int requestId;
     private RentalListing listing;
@@ -13,7 +14,7 @@ public class RentalRequest {
     private RequestStatus currentStatus;
     
     // Inner class for request history
-    public static class RequestHistory {
+    public static class RequestHistory implements Serializable {
         private int id;
         private String status;
         private Date date;

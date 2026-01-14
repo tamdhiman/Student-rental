@@ -26,16 +26,18 @@ public class Homeowner extends User {
 
     rentListings.add(newListing);              // local list
     RentalListingRepo.addListing(newListing);  // persist globally
-}
+    }
 
-
+    public void addRentalRequest(RentalRequest request) {
+    rentalRequests.add(request);
+    }
 
     public List<Room> getRooms() {
         return List.copyOf(rentRooms);
     }
 
     public List<RentalListing> getListings() {
-        return List.copyOf(rentListings);
+    return new ArrayList<>(RentalListingRepo.getListingsByHomeowner(this).values());
     }
 
     public List<RentalBooking> getRentHistory() {
