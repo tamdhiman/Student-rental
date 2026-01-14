@@ -14,21 +14,22 @@ public class UserRepo {
     }
 
     /* Find User Methods */
-
-    public static User findUserByEmail(String email) {
+    public static User findUserCredentials(String credentials) {
     for (User user : userDatabase.values()) {
-        if (user.getEmail().equalsIgnoreCase(email)) {
+        if (user.getEmail().equalsIgnoreCase(credentials)) {
+            return user;
+        }
+        else if(user.getName().equalsIgnoreCase(credentials)){
             return user;
         }
     }
     return null;
     }
-
     public static User findUserById(int userId) {
         return userDatabase.get(userId);
     }
 
-    public static User findUser(int userId, User requesting_user) {
+    public static User findUserAdmin(int userId, User requesting_user) {
        if (requesting_user instanceof Administration) {
            return userDatabase.get(userId);
        }

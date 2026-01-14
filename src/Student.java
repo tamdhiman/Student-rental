@@ -7,8 +7,8 @@ public class Student extends User {
     private final List<RentalRequest> rental_requests = new ArrayList<>();
     private final List<RentalBooking> rental_history = new ArrayList<>();
 
-    public Student(int user_id, String first_name, String last_name, String email, String contact_number, String password, Map<String, String> security_answers) {
-        super(user_id, first_name, last_name, email, contact_number, password, security_answers);
+    public Student(int userId, String name, String email, String contact_number, String password, Map<String, String> security_answers) {
+        super(userId, name, email, contact_number, password, security_answers);
     }
 
 
@@ -17,7 +17,7 @@ public class Student extends User {
         if(start_date.after(end_date)){
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
-        rental_requests.add(new RentalRequest(this.user_id, room_id, start_date, end_date));
+        rental_requests.add(new RentalRequest(this.userId, room_id, start_date, end_date));
     }
 
     /* UPDATE HISTORY */

@@ -7,7 +7,7 @@ public abstract class User {
     /* USER ATTRIBUTES */
 
     protected final int userId;
-    protected String[] name;
+    protected String name;
     protected String email;
     protected String contactNumber;
     protected String passwordHash;
@@ -15,9 +15,9 @@ public abstract class User {
 
     /* USER CONSTRUCTOR */
 
-    public User(int userId, String firstName, String lastName, String email, String contactNumber, String password, Map<String, String> securityAnswers) {
+    public User(int userId, String name,  String email, String contactNumber, String password, Map<String, String> securityAnswers) {
         this.userId = userId;
-        this.name = new String[]{firstName, lastName};
+        this.name = name;
         this.email = email;
         this.contactNumber = contactNumber;
         this.passwordHash = createPasswordHash(password);
@@ -50,11 +50,8 @@ public abstract class User {
 
     /* SETTER METHODS */
 
-    protected void setFirstName(String name) {
-        this.name[0] = name;
-    }
-    protected void setLastName(String name) {
-        this.name[1] = name;
+    protected void setName(String name){
+        this.name = name;
     }
     protected void setEmail(String email) {
         this.email = email;
@@ -68,7 +65,7 @@ public abstract class User {
     public int getUserId() {
         return userId;
     }
-    public String[] getName() {
+    public String getName() {
         return name;
     }
     public String getEmail() {

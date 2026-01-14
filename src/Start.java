@@ -52,8 +52,7 @@ public class Start {
    private void createAccount(){ /* Internal helper method */
       
       int newUserId = UserRepo.generateUserId();
-      String firstName = getInput("First name:");
-      String lastName = getInput("Last name:");
+      String name = getInput("Your name:");
       String email = getEmailInput("Email:");
       String contactNumber = getContactNumberInput("Contact Number:");
       String password = getPasswordInput("Password:");
@@ -78,8 +77,8 @@ public class Start {
          sc.nextLine();
          
          switch (userChoice) {
-            case 1 -> newUser = new Student(newUserId, firstName, lastName, email, contactNumber, password, answers);
-            case 2 -> newUser = new Homeowner(newUserId, firstName, lastName, email, contactNumber, password, answers);
+            case 1 -> newUser = new Student(newUserId, name, email, contactNumber, password, answers);
+            case 2 -> newUser = new Homeowner(newUserId, name, email, contactNumber, password, answers);
             case 3 -> {
                   System.out.println("Admin creation disabled.");
                   continue;
