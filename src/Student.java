@@ -3,6 +3,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+
 public class Student extends User {
     private final List<RentalRequest> rentalRequests = new ArrayList<>();
     private final List<RentalBooking> rentalHistory = new ArrayList<>();

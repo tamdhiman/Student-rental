@@ -45,10 +45,10 @@ public class RentalRequest implements Serializable{
         this.homeowner = homeowner;
         this.requestHistory = new ArrayList<>();
 
-        this.currentStatus = RequestStatus.PENDING;
+        this.currentStatus = RequestStatus.UNDECIDED;
 
         // Record initial status
-        updateHistory(RequestStatus.PENDING);
+        updateHistory(RequestStatus.UNDECIDED);
 
     }
 
