@@ -1,11 +1,14 @@
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.Random;
 
-public abstract class User {
+public abstract class User implements Serializable {
 
     /* USER ATTRIBUTES */
 
+    private static final long serialVersionUID = 1L;
     protected final int userId;
     protected String name;
     protected String email;
@@ -43,11 +46,23 @@ public abstract class User {
         }
     }
 
-    private boolean authenticateUser(String password) {
+    public boolean authenticateUser(String password) {
         String inputPasswordHash = createPasswordHash(password);
         return this.passwordHash.equals(inputPasswordHash);
    }
 
+    public String getRandomSecurityQuestion() {
+        int index = new Random().nextInt(securityAnswers.size());
+        return securityAnswers.keySet().toArray(new String[0])[index];
+    }
+   public boolean verifySecurityAnswer(String question, String answer) {
+        String correctAnswer = securityAnswers.get(question);
+        return correctAnswer != null && correctAnswer.equalsIgnoreCase(answer);
+    }
+
+    public void resetPassword(String password){ //Is this helpful/protects user?
+        setPassword(password);
+    }
     /* SETTER METHODS */
 
     protected void setName(String name){
@@ -58,6 +73,9 @@ public abstract class User {
     }
     protected void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+    protected void setPassword(String password){
+        this.passwordHash = createPasswordHash(password);
     }
 
     /* GETTER METHODS */

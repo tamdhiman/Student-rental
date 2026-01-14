@@ -1,20 +1,32 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 public class UserRepo {
     private static int nextUserId = 1;
-    private static final Map<Integer, User> userDatabase = new HashMap<>();
+    private static  Map<Integer, User> userDatabase = new HashMap<>();
+    private static final String fileName = "users.dat";
+    
+    static { //Explain static
+        loadData();
+    }
+
 
     public static int generateUserId() {
         return nextUserId++;
     }
-
     public static void addUser(User newUser) {
         userDatabase.put(newUser.getUserId(), newUser);
+        saveData();
     }
 
     /* Find User Methods */
-    public static User findUserCredentials(String credentials) {
+    public static User findUser(String credentials) {
     for (User user : userDatabase.values()) {
         if (user.getEmail().equalsIgnoreCase(credentials)) {
             return user;
@@ -48,6 +60,38 @@ public class UserRepo {
             return Map.copyOf(userDatabase);
         }
         throw new SecurityException("Access denied");
+    }
+
+
+    /* FILE HANDLING */
+
+
+    private static void saveData() {
+        try (ObjectOutputStream out = new ObjectOutputStream(
+                new FileOutputStream(fileName))) {
+
+            out.writeObject(userDatabase);
+            out.writeInt(nextUserId);
+
+        } catch (IOException e) {
+            System.out.println("Failed to save user data.");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void loadData() {
+        File file = new File(fileName);
+        if (!file.exists()) return;
+
+        try (ObjectInputStream in = new ObjectInputStream(
+                new FileInputStream(fileName))) {
+
+            userDatabase = (Map<Integer, User>) in.readObject();
+            nextUserId = in.readInt();
+
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Failed to load user data.");
+        }
     }
 
 }
