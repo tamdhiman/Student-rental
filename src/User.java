@@ -1,38 +1,52 @@
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 public abstract class User {
 
     /* USER ATTRIBUTES */
 
-    protected final int user_id;
+    protected final int userId;
     protected String[] name;
     protected String email;
-    protected String contact_number;
-    protected String password_hash;
-    protected Map<String, String> security_answers;
+    protected String contactNumber;
+    protected String passwordHash;
+    protected Map<String, String> securityAnswers;
 
     /* USER CONSTRUCTOR */
 
-    public User(int user_id, String first_name, String last_name, String email, String contact_number, String password, Map<String, String> security_answers) {
-        this.user_id = user_id;
-        this.name = new String[]{first_name, last_name};
+    public User(int userId, String firstName, String lastName, String email, String contactNumber, String password, Map<String, String> securityAnswers) {
+        this.userId = userId;
+        this.name = new String[]{firstName, lastName};
         this.email = email;
-        this.contact_number = contact_number;
-        this.password_hash = createPasswordHash(password);
+        this.contactNumber = contactNumber;
+        this.passwordHash = createPasswordHash(password);
         //Fix
-        this.security_answers = security_answers;
+        this.securityAnswers = securityAnswers;
     }
     /* HELPER METHODS */
 
     public String createPasswordHash(String password) {
-        //Implement hashing algo
-        return null;
+        /* Temporary hashing, might change according to the LO */
+        try {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = md.digest(password.getBytes());
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hashBytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Hashing algorithm not found");
+        }
     }
 
-    public String authenticateUser(String password) {
-        //Implement authentication?
-        return null;
-    }
+    private boolean authenticateUser(String password) {
+        String inputPasswordHash = createPasswordHash(password);
+        return this.passwordHash.equals(inputPasswordHash);
+   }
 
     /* SETTER METHODS */
 
@@ -45,14 +59,14 @@ public abstract class User {
     protected void setEmail(String email) {
         this.email = email;
     }
-    protected void setContactNumber(String contact_number) {
-        this.contact_number = contact_number;
+    protected void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
     }
 
     /* GETTER METHODS */
 
     public int getUserId() {
-        return user_id;
+        return userId;
     }
     public String[] getName() {
         return name;
@@ -60,15 +74,15 @@ public abstract class User {
     public String getEmail() {
         return email;
     }
-    public String getContact_number() {
-        return contact_number;
+    public String getContactNumber() {
+        return contactNumber;
     }
     //Required?
     protected String getPasswordHash() {
-        return password_hash;
+        return passwordHash;
     }
-    protected Map<String, String> getSecurity_answers() {
-        return security_answers;
+    protected Map<String, String> getSecurityAnswers() {
+        return securityAnswers;
     }
 }
 //check version control

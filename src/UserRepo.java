@@ -2,26 +2,41 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserRepo {
-    private static int next_user_id = 1;
-    private static final Map<Integer, User> user_database = new HashMap<>();
+    private static int nextUserId = 1;
+    private static final Map<Integer, User> userDatabase = new HashMap<>();
 
     public static int generateUserId() {
-        return next_user_id++;
+        return nextUserId++;
     }
 
-    public static void addUser(User current_user) {
-        user_database.put(current_user.getUser_id(), current_user);
+    public static void addUser(User newUser) {
+        userDatabase.put(newUser.getUserId(), newUser);
     }
 
-    public static User findUser(int user_id, User requesting_user) {
+    /* Find User Methods */
+
+    public static User findUserByEmail(String email) {
+    for (User user : userDatabase.values()) {
+        if (user.getEmail().equalsIgnoreCase(email)) {
+            return user;
+        }
+    }
+    return null;
+    }
+
+    public static User findUserById(int userId) {
+        return userDatabase.get(userId);
+    }
+
+    public static User findUser(int userId, User requesting_user) {
        if (requesting_user instanceof Administration) {
-           return user_database.get(user_id);
+           return userDatabase.get(userId);
        }
        /*
        throw new SecurityException("Access denied");
         */
        // Neccessary?
-       if (requesting_user.getUserId() == user_id) {
+       if (requesting_user.getUserId() == userId) {
             return requesting_user;
        }
        return null;
@@ -29,7 +44,7 @@ public class UserRepo {
     // We have a list in Admin, use?
     public static Map<Integer, User> findAllUsers(User requester) {
         if (requester instanceof Administration) {
-            return Map.copyOf(user_database);
+            return Map.copyOf(userDatabase);
         }
         throw new SecurityException("Access denied");
     }
