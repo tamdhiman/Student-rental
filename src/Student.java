@@ -1,17 +1,30 @@
+/*
+
+ * Student
+ * 
+ * 14-01-2026
+ * 
+ */
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 
 public class Student extends User {
+
+    /* STUDENT ATTRIBUTES */
     private final List<RentalRequest> rentalRequests = new ArrayList<>();
     private final List<RentalBooking> rentalHistory = new ArrayList<>();
+
+    /* STUDENT CONSTRUCTOR */
 
     public Student(int userId, String name, String email, String contactNumber, String password, Map<String, String> securityAnswers) {
         super(userId, name, email, contactNumber, password, securityAnswers);
     }
 
+
+    /* HELPER METHODS */
 
     public void createRequest(RentalListing listing) {
     if (listing == null) {
@@ -26,20 +39,17 @@ public class Student extends User {
         listing,
         listing.getHomeowner()
     );
-
     rentalRequests.add(request);
 
-    // Add to homeowner as well
     listing.getHomeowner().addRentalRequest(request);
-
-    // Persist globally
     RentalRequestRepo.addRequest(request);
-}
+    }
 
-    /* UPDATE HISTORY */
     public void addRentalHistory(RentalBooking booking) {
         rentalHistory.add(booking);
     }
+
+    /* GETTER METHODS */
     public List<RentalRequest> getRentalRequests() {
         return List.copyOf(rentalRequests);
     }

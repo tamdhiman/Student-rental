@@ -1,3 +1,10 @@
+/*
+
+ * RentalListing
+ * 
+ * 14-01-2026
+ * 
+ */
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,6 +13,7 @@ import java.util.List;
 
 public class RentalRequest implements Serializable{
 
+    /* RENTAL REQUEST ATTRIBUTES */
     private int requestId;
     private RentalListing listing;
     private Student student;
@@ -13,7 +21,8 @@ public class RentalRequest implements Serializable{
     private List<RequestHistory> requestHistory;
     private RequestStatus currentStatus;
     
-    // Inner class for request history
+    /*  INNER CLASS REQUEST HISTORY */
+
     public static class RequestHistory implements Serializable {
         private int id;
         private String status;
@@ -25,19 +34,19 @@ public class RentalRequest implements Serializable{
             this.date = date;
         }
 
-        // Getters and setters
+        // Getter Methods
         public int getId() { return id; }
-        public void setId(int id) { this.id = id; }
-
         public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
-
         public Date getDate() { return date; }
+
+        // Setter Methods
+        public void setId(int id) { this.id = id; }
+        public void setStatus(String status) { this.status = status; }
         public void setDate(Date date) { this.date = date; }
     }
 
 
-    // Constructor
+    /* RENTAL REQUEST CONSTRUCTOR */
     public RentalRequest(int requestId, Student student, RentalListing listing, Homeowner homeowner) {
         this.requestId = requestId;
         this.student = student;
@@ -47,40 +56,21 @@ public class RentalRequest implements Serializable{
 
         this.currentStatus = RequestStatus.UNDECIDED;
 
-        // Record initial status
+        // Record initial status as Undecided
         updateHistory(RequestStatus.UNDECIDED);
 
     }
 
-    // Static factory method similar to UML
+    /* HELPER METHODS */
+
     public static RentalRequest createRequest(int requestId, Student student, RentalListing listing, Homeowner homeowner) {
         return new RentalRequest(requestId, student, listing, homeowner);
     }
-
-
-    // Getters and setters
-    public int getRequestId() { return requestId; }
-    public void setRequestId(int request_id) { this.requestId = request_id; }
-
-    public RentalListing getListing() { return listing; }
-    public void setListing(RentalListing listing) { this.listing = listing; }
-
-    public Student getStudent() { return student; }
-    public void setStudent(Student student) { this.student = student; }
-
-    public Homeowner getHomeowner() { return homeowner; }
-    public void setHomeowner(Homeowner homeowner) { this.homeowner = homeowner; }
-
-    public List<RequestHistory> getRequestHistory() { return requestHistory; }
-
+    
     public void updateHistory(RequestStatus status) {
         this.currentStatus = status;
         int historyId = requestHistory.size() + 1;
         requestHistory.add(new RequestHistory(historyId, status.name(), new Date()));
-    }
-
-    public RequestStatus getCurrentStatus() {
-        return currentStatus;
     }
 
     @Override
@@ -90,5 +80,43 @@ public class RentalRequest implements Serializable{
                ", Listing ID: " + listing.getListingId() +
                ", Status: " + currentStatus;
     }
+
+    /* SETTER METHODS */
+
+    public void setListing(RentalListing listing) { 
+        this.listing = listing; 
+    }
+    public void setStudent(Student student) { 
+        this.student = student; 
+    }
+    public void setHomeowner(Homeowner homeowner) { 
+        this.homeowner = homeowner; 
+    }
+
+
+    /* GETTER METHODS */
+
+    public int getRequestId() { 
+        return requestId; 
+    }
+    public RentalListing getListing() { 
+        return listing; 
+    }
+    public Student getStudent() { 
+        return student; 
+    }
+    public Homeowner getHomeowner() { 
+        return homeowner; 
+    }
+    public List<RequestHistory> getRequestHistory() { 
+        return requestHistory; 
+    }
+    public void setRequestId(int request_id) { 
+        this.requestId = request_id; 
+    }
+    public RequestStatus getCurrentStatus() {
+        return currentStatus;
+    }
+
 }
 

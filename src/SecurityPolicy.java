@@ -1,8 +1,17 @@
+/*
+
+ * SecurityPolicy
+ * 
+ * 14-01-2026
+ * 
+ */
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 public class SecurityPolicy {
 
+    /* SECURITY POLICY ATTRIBUTES */
     private static List<String> securityQuestions = new ArrayList<>(
             List.of(
                     "What is your favorite ice cream flavour?",
@@ -12,11 +21,12 @@ public class SecurityPolicy {
             )
     );
 
+    /* GETTER METHODS */
     public static List<String> getSecurityQuestions() {
         return Collections.unmodifiableList(securityQuestions);
     }
 
-    // Only Admin should call this
+    /* UPDATE METHODS */
     protected static void updateSecurityQuestions(List<String> newQuestions) {
         securityQuestions = new ArrayList<>(newQuestions);
     }

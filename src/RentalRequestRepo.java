@@ -1,3 +1,11 @@
+/*
+
+ * RentalRequestRepo
+ * 
+ * 14-01-2026
+ * 
+ */
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
@@ -6,56 +14,54 @@ import java.util.stream.Collectors;
 
 public class RentalRequestRepo {
 
-    private static Map<Integer, RentalRequest> requestDatabase = new HashMap<>();
     private static int nextRequestId = 1;
+    private static Map<Integer, RentalRequest> requestDatabase = new HashMap<>();
     private static final String fileName = "rental_requests.dat";
 
-    /* Load data when class is first used */
-    static {
+    static { // Static initialization to load requests at runtime start
         loadData();
     }
 
-    /* ID generation */
+    /* HELPER METHODS */
+
     public static int generateRequestId() {
         return nextRequestId++;
     }
 
-    /* Add a new request */
     public static void addRequest(RentalRequest request) {
         requestDatabase.put(request.getRequestId(), request);
         saveData();
     }
 
-    /* Find by ID */
+    /* GETTER METHODS */
+    
     public static RentalRequest getRequestById(int requestId) {
         return requestDatabase.get(requestId);
     }
 
-    /* Get all requests (admin use later) */
     public static List<RentalRequest> getAllRequests() {
         return List.copyOf(requestDatabase.values());
     }
 
-    /* Requests made by a student */
     public static List<RentalRequest> getRequestsByStudent(Student student) {
         return requestDatabase.values()
                 .stream()
-                .filter(r -> r.getStudent().getUserId() == student.getUserId())
+                .filter(r -> r.getStudent().equals(student))
                 .collect(Collectors.toList());
     }
 
-    /* Requests received by a homeowner */
     public static List<RentalRequest> getRequestsByHomeowner(Homeowner homeowner) {
         return requestDatabase.values()
                 .stream()
-                .filter(r -> r.getHomeowner().getUserId() == homeowner.getUserId())
+                .filter(r -> r.getHomeowner().equals(homeowner))
                 .collect(Collectors.toList());
     }
 
-    /* Persist data */
+    /* FILE HANDLING */
+
     private static void saveData() {
-        try (ObjectOutputStream out =
-                     new ObjectOutputStream(new FileOutputStream(fileName))) {
+        try (ObjectOutputStream out = new ObjectOutputStream(
+                new FileOutputStream(fileName))) {
 
             out.writeObject(requestDatabase);
             out.writeInt(nextRequestId);
@@ -65,14 +71,13 @@ public class RentalRequestRepo {
         }
     }
 
-    /* Load data */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // To block unchecked cast warnings
     private static void loadData() {
         File file = new File(fileName);
         if (!file.exists()) return;
 
-        try (ObjectInputStream in =
-                     new ObjectInputStream(new FileInputStream(fileName))) {
+        try (ObjectInputStream in = new ObjectInputStream(
+                new FileInputStream(fileName))) {
 
             requestDatabase = (Map<Integer, RentalRequest>) in.readObject();
             nextRequestId = in.readInt();
