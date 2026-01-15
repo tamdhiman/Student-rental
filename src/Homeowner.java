@@ -9,7 +9,6 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Date;
 
 public class Homeowner extends User {
 
@@ -17,7 +16,6 @@ public class Homeowner extends User {
     private final List<Room> rentRooms = new ArrayList<>();
     private final List<RentalListing> rentListings = new ArrayList<>();
     private final List<RentalBooking> rentHistory = new ArrayList<>();
-    private final List<RentalRequest> rentalRequests = new ArrayList<>();
 
     /* HOMEOWNER CONSTRUCTOR */
     public Homeowner(int userId, String name, String email, String contactNumber, String password, Map<String, String> securityAnswers) {
@@ -41,9 +39,7 @@ public class Homeowner extends User {
     RentalListingRepo.addListing(newListing);  // persist globally
     }
 
-    public void addRentalRequest(RentalRequest request) {
-    rentalRequests.add(request);
-    }
+
 
     /* GETTER METHODS */
     public List<Room> getRooms() {
@@ -59,7 +55,7 @@ public class Homeowner extends User {
     }
 
     public List<RentalRequest> getRentalRequests() {
-        return List.copyOf(rentalRequests);
+        return  RentalRequestRepo.getRequestsByHomeowner(this);
     }
 
 

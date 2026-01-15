@@ -24,7 +24,9 @@ public class UserRepo {
       saveData(); 
    } 
    
-   /* FIND USER METHODS */ 
+   /* FIND USER METHODS */
+   
+   // Linear Search
    public static User findUser(String credentials) { 
       for (User user : userDatabase.values()) { 
          if (user.getEmail().equalsIgnoreCase(credentials)) { 
@@ -37,6 +39,7 @@ public class UserRepo {
       return null; 
    } 
    
+   //HashMap search
    public static User findUserById(int userId) { 
       return userDatabase.get(userId); 
    } 

@@ -26,6 +26,7 @@ public class RentalListing implements Serializable {
       if (homeowner == null) {
          throw new IllegalArgumentException("A rental listing must have a homeowner!");
       }
+      System.out.println(homeowner);
       this.listingId = listingId;
       this.rooms = rooms;
       this.city = city;
@@ -67,7 +68,7 @@ public class RentalListing implements Serializable {
       return price; 
    }
    public Homeowner getHomeowner() { 
-      return homeowner; 
+      return this.homeowner; 
    }
 
 

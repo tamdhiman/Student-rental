@@ -73,6 +73,7 @@ public class RentalRequest implements Serializable{
         requestHistory.add(new RequestHistory(historyId, status.name(), new Date()));
     }
 
+    
     @Override
     public String toString() {
         return "Request ID: " + requestId +

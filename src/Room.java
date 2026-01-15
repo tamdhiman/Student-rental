@@ -19,6 +19,7 @@ public class Room implements Serializable {
    private String description;
    private Homeowner owner; 
    private List<RentalBooking> rentalHistory; 
+   private Integer listingId;
 
     /* ROOM CONSTRUCTOR */
    public Room(int roomId, String roomName, String description,  Homeowner owner ){
@@ -27,6 +28,7 @@ public class Room implements Serializable {
       this.description = description;
       this.owner = owner;
       this.rentalHistory = new ArrayList<>();
+      this.listingId = null;
    }
 
    /* HELPER METHODS */
@@ -35,11 +37,23 @@ public class Room implements Serializable {
         rentalHistory.add(booking);
     }
 
+    public boolean isAvailable() {
+      return listingId == null;
+   }
+
+   public void assignToListing(int listingId) {
+      this.listingId = listingId;
+   }
+   public void removeFromListing() {
+      this.listingId = null;
+   }
    //  Prints Formatted Room Information
    @Override
     public String toString() {
         return "Room ID: " + roomId + ", Name: " + roomName + ", Description: " + description;
     }
+
+
 
    /* GETTER METHODS */
    public int getRoomId(){ 
@@ -57,5 +71,8 @@ public class Room implements Serializable {
     } 
     public List<RentalBooking> getRentalHistory(){
         return List.copyOf(rentalHistory);
+    }
+    public Integer getListingId() { 
+        return listingId; 
     }
 }

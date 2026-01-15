@@ -33,6 +33,12 @@ public class RentalRequestRepo {
         saveData();
     }
 
+    public static void updateRequest(RentalRequest request) {
+    requestDatabase.put(request.getRequestId(), request);
+    saveData();
+}
+
+
     /* GETTER METHODS */
     
     public static RentalRequest getRequestById(int requestId) {
@@ -46,16 +52,17 @@ public class RentalRequestRepo {
     public static List<RentalRequest> getRequestsByStudent(Student student) {
         return requestDatabase.values()
                 .stream()
-                .filter(r -> r.getStudent().equals(student))
+                .filter(r -> r.getStudent().getUserId() == student.getUserId())
                 .collect(Collectors.toList());
     }
 
-    public static List<RentalRequest> getRequestsByHomeowner(Homeowner homeowner) {
-        return requestDatabase.values()
-                .stream()
-                .filter(r -> r.getHomeowner().equals(homeowner))
-                .collect(Collectors.toList());
-    }
+   public static List<RentalRequest> getRequestsByHomeowner(Homeowner homeowner) {
+    return requestDatabase.values()
+            .stream()
+            .filter(r -> r.getHomeowner().getUserId() == homeowner.getUserId())
+            .collect(Collectors.toList());
+}
+
 
     /* FILE HANDLING */
 

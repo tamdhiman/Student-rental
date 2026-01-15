@@ -43,7 +43,7 @@ public class Start {
          System.out.println("2. Login into account");
          System.out.println("3. Exit this simulation");
          pause(2000);
-         String input = sc.next();
+         String input = sc.nextLine();
          int userChoice;
          try {
             userChoice = Integer.parseInt(input);
@@ -87,8 +87,9 @@ public class Start {
          System.out.println("1. Student");
          System.out.println("2. Homeowner");
          System.out.println("3. Return to previous page");
+         System.out.println(RentalListingRepo.getAllListings());
          
-         String input = sc.next();
+         String input = sc.nextLine();
          int userChoice;
          try {
             userChoice = Integer.parseInt(input);
@@ -140,7 +141,7 @@ public class Start {
         }
         
         System.out.print("Enter password: "); 
-        System.out.print("--Enter HELP to reset passoword--");
+        System.out.println("--Enter HELP to reset passoword--");
         String password = sc.nextLine();
 
         // Reset password 
@@ -196,7 +197,7 @@ public class Start {
          System.out.print("4: Return to previous page ");
          pause(2000);
 
-         String input = sc.next();
+         String input = sc.nextLine();
          int userChoice;
          try {
             userChoice = Integer.parseInt(input);
@@ -231,7 +232,7 @@ public class Start {
          System.out.print("Enter your choice: ");
          pause(2000);
 
-         String input = sc.next();
+         String input = sc.nextLine();
          int userChoice;
          try {
          userChoice = Integer.parseInt(input);
@@ -299,7 +300,7 @@ private void rentalListingPage(Homeowner homeowner) {
       System.out.println("3. Return to Homeowner Dashboard");
       System.out.print("Enter your choice: ");
 
-      String input = sc.next();
+      String input = sc.nextLine();
       int choice;
       try {
          choice = Integer.parseInt(input);
@@ -333,28 +334,32 @@ private void rentalListingPage(Homeowner homeowner) {
    }
 }
 
-// Creates a listing 
-private void addListingPage(Homeowner homeowner){
+// Creates a rental listing
+private void addListingPage(Homeowner homeowner) {
 
-   List<Room> homeownerRooms = new ArrayList<>(RoomRepo.getRoomsByHomeowner(homeowner).values());
-   if (homeownerRooms.isEmpty()) {
-      System.out.println("You have no rooms to create a listing. Add rooms first!");
+   // Get only avai;able rooms owned by this homeowner
+   List<Room> availableRooms = RoomRepo.getAvailableRoomsByHomeowner(homeowner);
+
+   if (availableRooms.isEmpty()) {
+      System.out.println("You have no available rooms to create a listing.");
       return;
    }
 
-   sc.nextLine(); 
-   String city = null;
-   String address = null;
+   /* CITY INPUT */
+   String city;
    do {
       System.out.print("Enter city: ");
       city = sc.nextLine().trim();
-      } while (city.isEmpty());
+   } while (city.isEmpty());
 
+   /* ADDRESS INPUT */
+   String address;
    do {
       System.out.print("Enter address: ");
       address = sc.nextLine().trim();
-      } while (address.isEmpty());
+   } while (address.isEmpty());
 
+   /* PRICE INPUT */
    double price;
    while (true) {
       System.out.print("Enter price per night: ");
@@ -366,23 +371,73 @@ private void addListingPage(Homeowner homeowner){
          System.out.println("Invalid price. Enter a positive number.");
       }
    }
-   
 
+   /* ROOM SELECTION */
+   System.out.println("\n--- Available Rooms ---");
+   for (int i = 0; i < availableRooms.size(); i++) {
+      System.out.println((i + 1) + ". " + availableRooms.get(i));
+   }
+
+   System.out.print("Select room numbers (comma-separated): ");
+   String[] selections = sc.nextLine().split(",");
+
+   List<Room> selectedRooms = new ArrayList<>();
+
+   try {
+      for (String s : selections) {
+         int index = Integer.parseInt(s.trim()) - 1;
+         if (index < 0 || index >= availableRooms.size()) {
+            throw new NumberFormatException();
+         }
+         selectedRooms.add(availableRooms.get(index));
+      }
+   } catch (NumberFormatException e) {
+      System.out.println("Invalid room selection. Listing cancelled.");
+      return;
+   }
+
+   if (selectedRooms.isEmpty()) {
+      System.out.println("You must select at least one room.");
+      return;
+   }
+
+   /* AVAILABLE DATES */
    List<DateRange> availableDates = new ArrayList<>();
-   getAvailableDates(availableDates); 
+   getAvailableDates(availableDates);
 
+   if (availableDates.isEmpty()) {
+      System.out.println("You must add at least one available date range.");
+      return;
+   }
+
+   /* CREATE LISTING */
    int listingId = RentalListingRepo.generateListingId();
-   RentalListing listing = new RentalListing(listingId, homeownerRooms, city, address, availableDates, price, homeowner);
+   RentalListing listing = new RentalListing(
+         listingId,
+         selectedRooms,
+         city,
+         address,
+         availableDates,
+         price,
+         homeowner
+   );
 
-   RentalListingRepo.addListing(listing);       
+   RentalListingRepo.addListing(listing);
+
+   /* ASSIGN ROOMS TO LISTING */
+   for (Room room : selectedRooms) {
+      room.assignToListing(listingId);
+   }
+
    System.out.println("Rental Listing added successfully!");
 }
+
 
 
 /* Manages Rental Requests for Homeowner */
 private void rentalRequestsPage(Homeowner homeowner) {
 
-   List<RentalRequest> requests = homeowner.getRentalRequests();
+   List<RentalRequest> requests = RentalRequestRepo.getRequestsByHomeowner(homeowner);
 
    if (requests.isEmpty()) {
       System.out.println("No rental requests at the moment.");
@@ -398,7 +453,7 @@ private void rentalRequestsPage(Homeowner homeowner) {
       }
 
       System.out.print("Enter request number to respond or 0 to return: ");
-      String input = sc.next();
+      String input = sc.nextLine();
       pause(1000);
 
       int choice;
@@ -421,7 +476,7 @@ private void rentalRequestsPage(Homeowner homeowner) {
 
       RentalRequest selected = requests.get(choice - 1);
 
-      if (selected.getCurrentStatus() != RequestStatus.PENDING) {
+      if (selected.getCurrentStatus() != RequestStatus.UNDECIDED) {
          System.out.println("This request has already been processed.");
          continue;
       }
@@ -430,15 +485,17 @@ private void rentalRequestsPage(Homeowner homeowner) {
       System.out.println("2. Reject");
       System.out.println("3. Undecided");
       System.out.print("Choose an option: ");
-      String decision = sc.next();
+      String decision = sc.nextLine();
 
       switch (decision) {
          case "1" -> {
                selected.updateHistory(RequestStatus.ACCEPTED);
+               RentalRequestRepo.updateRequest(selected);  
                System.out.println("Request accepted.");
          }
          case "2" -> {
                selected.updateHistory(RequestStatus.REJECTED);
+               RentalRequestRepo.updateRequest(selected);  
                System.out.println("Request rejected.");
          }
          default -> System.out.println("Invalid option.");
@@ -512,7 +569,7 @@ private void studentPage(Student student){
       System.out.println("4. Return to previous menu");
       System.out.print("Enter your choice: ");
 
-      String input = sc.next();
+      String input = sc.nextLine();
       int choice;
       try {
          choice = Integer.parseInt(input);
@@ -555,7 +612,7 @@ private void searchListingsPage(Student student){
       System.out.println("3. Return to previous menu");
       System.out.print("Enter your choice: ");
 
-      String input = sc.next();
+      String input = sc.nextLine();
       int choice;
       try {
          choice = Integer.parseInt(input);
@@ -582,9 +639,83 @@ private void searchListingsPage(Student student){
 
 }
 
-private void filterListings(List<RentalListing> listings){
-   // Implement Algo according to Lo4
+private void filterListings(List<RentalListing> listings) {
+
+   // Filer Listings Menu
+   System.out.println("\n--- Filter Listings ---");
+   System.out.println("Choose filtering method:");
+   System.out.println("1. Simple filter (City only)");
+   System.out.println("2. Advanced filter (City + Max Price)");
+   System.out.print("Enter your choice: ");
+
+   String input = sc.nextLine();
+   int choice;
+
+   try {
+      choice = Integer.parseInt(input);
+   } catch (NumberFormatException e) {
+      System.out.println("Invalid option.");
+      return;
+   }
+
+   List<RentalListing> filtered = new ArrayList<>();
+
+   switch (choice) {
+
+      // First Match Search (Greedy)
+      case 1 -> {
+         System.out.print("Enter city: ");
+         String city = sc.nextLine().trim();
+         for (RentalListing listing : listings) {
+         if (listing.getCity().equalsIgnoreCase(city)) {
+            filtered.add(listing);
+            break; // EARLY EXIT
+         }
 }
+      }
+
+      // Complete Search (Exhaustive/Brute Force?)
+      case 2 -> {
+         System.out.print("Enter city: ");
+         String city = sc.nextLine().trim();
+
+         double maxPrice;
+         try {
+               System.out.print("Enter maximum price per night: ");
+               maxPrice = Double.parseDouble(sc.nextLine());
+         } catch (NumberFormatException e) {
+               System.out.println("Invalid price.");
+               return;
+         }
+
+         for (RentalListing listing : listings) {
+         if (
+            listing.getCity().equalsIgnoreCase(city) &&
+            listing.getPrice() <= maxPrice
+         ) {
+            filtered.add(listing);
+         }
+      }
+      }
+
+      default -> {
+         System.out.println("Invalid selection.");
+         return;
+      }
+   }
+
+   // Display results
+   if (filtered.isEmpty()) {
+      System.out.println("No listings matched your criteria.");
+      return;
+   }
+
+   System.out.println("\n--- Filtered Listings ---");
+   for (int i = 0; i < filtered.size(); i++) {
+      System.out.println((i + 1) + ". " + filtered.get(i));
+   }
+}
+
 
 // Displays Student Requests
 private void viewStudentRequests(Student student) {

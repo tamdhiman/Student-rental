@@ -12,7 +12,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RoomRepo {
@@ -57,6 +59,16 @@ public class RoomRepo {
         return result;
     }
 
+    public static List<Room> getAvailableRoomsByHomeowner(Homeowner homeowner) {
+    List<Room> result = new ArrayList<>();
+
+    for (Room room : roomDatabase.values()) {
+        if (room.getOwner().equals(homeowner) && room.isAvailable()) {
+            result.add(room);
+        }
+    }
+    return result;
+}
     /* FILE HANDLING */
 
     private static void saveData() {

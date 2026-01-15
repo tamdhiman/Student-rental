@@ -41,7 +41,6 @@ public class Student extends User {
     );
     rentalRequests.add(request);
 
-    listing.getHomeowner().addRentalRequest(request);
     RentalRequestRepo.addRequest(request);
     }
 
