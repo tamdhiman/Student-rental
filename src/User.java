@@ -1,3 +1,11 @@
+/*
+
+ * User
+ * 
+ * 14-01-2026
+ * 
+ */
+
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -26,13 +34,13 @@ public abstract class User implements Serializable {
         this.email = email;
         this.contactNumber = contactNumber;
         this.passwordHash = createPasswordHash(password);
-        //Fix
         this.securityAnswers = securityAnswers;
     }
+
     /* HELPER METHODS */
 
+    // Converts password (stored in bytes) to password hash (stored in hex string). Transforms input by performing some bitwise opperations
     public String createPasswordHash(String password) {
-        /* Temporary hashing, might change according to the LO */
         try {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hashBytes = md.digest(password.getBytes());
@@ -44,7 +52,7 @@ public abstract class User implements Serializable {
         return sb.toString();
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Hashing algorithm not found");
+            throw new RuntimeException("Hashing Algo not found");
         }
     }
 
@@ -57,13 +65,15 @@ public abstract class User implements Serializable {
         List<String> questions = List.copyOf(securityAnswers.keySet());
         return questions.get(randomGenerator.nextInt(questions.size()));
     }
+
    public boolean verifySecurityAnswer(String question, String answer) {
         return securityAnswers.get(question).equalsIgnoreCase(answer);
     }
 
-    public void resetPassword(String password){ //Is this helpful/protects user?
+    public void resetPassword(String password){ 
         setPassword(password);
     }
+
     /* SETTER METHODS */
 
     protected void setName(String name){
@@ -93,7 +103,6 @@ public abstract class User implements Serializable {
     public String getContactNumber() {
         return contactNumber;
     }
-    //Required?
     protected String getPasswordHash() {
         return passwordHash;
     }
@@ -101,4 +110,3 @@ public abstract class User implements Serializable {
         return securityAnswers;
     }
 }
-//check version control

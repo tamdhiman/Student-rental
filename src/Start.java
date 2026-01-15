@@ -16,11 +16,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 
-/* Main Class? */
+
 public class Start {
    
-   User currentUser = null; //Need?
-   Scanner sc = new Scanner (System.in);
+   /* START ATTRIBUTES */
+   private User currentUser = null; //Need?
+   private Scanner sc = new Scanner (System.in);
 
 /* MAIN METHOD */
    public static void main(String[] args) {
@@ -171,7 +172,7 @@ public class Start {
 
    /* APPLICATION PAGES */
 
-   public void runUserPage(){
+   private void runUserPage(){
       if (currentUser instanceof Student student) {
         studentPage(student);
       } 
@@ -183,7 +184,7 @@ public class Start {
    /* HOMEOWNER PAGES */
 
 
-   public void homeownerPage(Homeowner homeowner){
+   private void homeownerPage(Homeowner homeowner){
       
       // Main Page Menu
       while (true) {
@@ -219,7 +220,7 @@ public class Start {
    }
 
    // Manages Rooms for Homeowner
-   public void homeownerRoomPage(Homeowner homeowner) {
+   private void homeownerRoomPage(Homeowner homeowner) {
 
       // Room Management Menu
       while (true) {
@@ -379,7 +380,7 @@ private void addListingPage(Homeowner homeowner){
 
 
 /* Manages Rental Requests for Homeowner */
-public void rentalRequestsPage(Homeowner homeowner) {
+private void rentalRequestsPage(Homeowner homeowner) {
 
    List<RentalRequest> requests = homeowner.getRentalRequests();
 
@@ -446,7 +447,7 @@ public void rentalRequestsPage(Homeowner homeowner) {
 }
 
 // Gets a range of available dates for a room
-public void getAvailableDates(List<DateRange> availableDates) {
+private void getAvailableDates(List<DateRange> availableDates) {
    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
    while (true) {
       System.out.println("Enter start date (yyyy-mm-dd) or 'exit' to finish:");
@@ -500,7 +501,7 @@ public void getAvailableDates(List<DateRange> availableDates) {
 /* STUDENT PAGES */
 
 
-public void studentPage(Student student){
+private void studentPage(Student student){
    // Student Main Menu
 
    while (true) {
@@ -531,7 +532,7 @@ public void studentPage(Student student){
 }
 
 // Shows all the Listings
-public void searchListingsPage(Student student){
+private void searchListingsPage(Student student){
 
    List<RentalListing> listings =
          new ArrayList<>(RentalListingRepo.getAllListings().values());
@@ -581,12 +582,12 @@ public void searchListingsPage(Student student){
 
 }
 
-public void filterListings(List<RentalListing> listings){
+private void filterListings(List<RentalListing> listings){
    // Implement Algo according to Lo4
 }
 
 // Displays Student Requests
-public void viewStudentRequests(Student student) {
+private void viewStudentRequests(Student student) {
 
    List<RentalRequest> requests = RentalRequestRepo.getRequestsByStudent(student);
 
@@ -628,7 +629,7 @@ public void viewStudentRequests(Student student) {
 }
 
 // Displays Rental History
-public void viewRentalHistory(Student student) {
+private void viewRentalHistory(Student student) {
 
     List<RentalBooking> history = student.getRentalHistory();
 
@@ -683,7 +684,7 @@ public void viewRentalHistory(Student student) {
    }
    
    // Creates pauses in application using Threads
-   public void pause(int time){
+   private void pause(int time){
    try {
       Thread.sleep(time);
    } 
