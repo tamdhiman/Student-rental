@@ -87,7 +87,7 @@ public class Start {
          System.out.println("1. Student");
          System.out.println("2. Homeowner");
          System.out.println("3. Return to previous page");
-         System.out.println(RentalListingRepo.getAllListings());
+
          
          String input = sc.nextLine();
          int userChoice;
@@ -644,7 +644,7 @@ private void filterListings(List<RentalListing> listings) {
    // Filer Listings Menu
    System.out.println("\n--- Filter Listings ---");
    System.out.println("Choose filtering method:");
-   System.out.println("1. Simple filter (City only)");
+   System.out.println("1. Quick filter (City only)");
    System.out.println("2. Advanced filter (City + Max Price)");
    System.out.print("Enter your choice: ");
 
